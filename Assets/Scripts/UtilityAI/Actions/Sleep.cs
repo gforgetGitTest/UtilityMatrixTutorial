@@ -1,18 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TL.UtilityAI;
+using TL.Core;
 
-public class Sleep : MonoBehaviour
+namespace TL.UtilityAI.Actions
 {
-    // Start is called before the first frame update
-    void Start()
+    [CreateAssetMenu(fileName = "Sleep", menuName = "UtilityAI/Actions/Sleep")]
+    public class Sleep : Action
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public override void Execute(NPCController npc)
+        {
+            npc.DoSleep(3);
+        }
     }
 }

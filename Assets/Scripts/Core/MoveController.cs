@@ -15,12 +15,6 @@ namespace TL.Core
             agent = GetComponent<NavMeshAgent>();
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
         public void MoveTo(Vector3 position) 
         {
             agent.destination = position;

@@ -20,6 +20,6 @@ namespace TL.Core
             score = 0;
         }
 
-        public abstract float ScoreConsideration();
+        public abstract float ScoreConsideration(NPCController npc);
     }
 }

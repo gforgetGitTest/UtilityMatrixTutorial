@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using TL.UtilityAI;
 using UnityEngine;
 
 namespace TL.Core
 {
     public class AIBrain : MonoBehaviour
     {
+        public bool finishedDeciding { get; set; }
         public Action bestAction { get; set; }
         private NPCController npc;
-        
+
         // Start is called before the first frame update
         void Start()
         {
@@ -18,7 +20,10 @@ namespace TL.Core
         // Update is called once per frame
         void Update()
         {
-
+            if (bestAction == null) 
+            {
+                DecideBestAction(npc.actionsAvailable);
+            }
         }
 
         //Loop through all the available actions
@@ -38,6 +43,7 @@ namespace TL.Core
             }
 
             bestAction = actionsAvailable[nextBestActionIndex];
+            finishedDeciding = true;
         }
 
         //Loop through all the considerations of the action
@@ -49,7 +55,7 @@ namespace TL.Core
             
             for (int i = 0; i < action.considerations.Length; i++) 
             { 
-                float considerationScore = action.considerations[i].ScoreConsideration();
+                float considerationScore = action.considerations[i].ScoreConsideration(npc);
                 score *= considerationScore;
 
                 if (score == 0) 

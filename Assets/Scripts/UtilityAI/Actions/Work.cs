@@ -1,18 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TL.UtilityAI;
+using TL.Core;
 
-public class Work : MonoBehaviour
+namespace TL.UtilityAI.Actions
 {
-    // Start is called before the first frame update
-    void Start()
+    [CreateAssetMenu(fileName = "Work", menuName = "UtilityAI/Actions/Work")]
+    public class Work : Action
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public override void Execute( NPCController npc)
+        {
+            npc.DoWork(3);
+        }
     }
 }
