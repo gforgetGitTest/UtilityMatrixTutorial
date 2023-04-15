@@ -6,12 +6,12 @@ using TL.Core;
 
 namespace TL.UtilityAI.Actions
 {
-    [CreateAssetMenu(fileName = "Sleep", menuName = "UtilityAI/Actions/Sleep")]
-    public class Sleep : Action
+    [CreateAssetMenu(fileName = "SellWood", menuName = "UtilityAI/Actions/SellWood")]
+    public class SellWood : Action
     {
         public override void Execute(NPCController npc)
         {
-            npc.DoSleep();
+            npc.DoSellWood();
         }
     }
 }

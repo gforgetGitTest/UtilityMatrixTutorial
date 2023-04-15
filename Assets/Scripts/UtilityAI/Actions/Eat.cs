@@ -11,11 +11,7 @@ namespace TL.UtilityAI.Actions
     {
         public override void Execute(NPCController npc)
         {
-            Debug.Log("I ate food!");
-            // Logic for updating everything involve with eating
-
-            // Decide our new best action after you finished this one
-            npc.OnFinishedAction();
+            npc.DoEat();
         }
     }
 }

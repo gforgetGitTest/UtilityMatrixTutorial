@@ -35,29 +35,31 @@ public class UIManager : MonoBehaviour
 
     IEnumerator Start() 
     {
-        while (NPCManager.Instance == null) 
+        while (GameManager.Instance == null) 
         { 
             yield return null;
         }
 
-        SelectNPC(NPCManager.Instance.npcs[0]);
+        SelectNPC(GameManager.Instance.NPCs[0]);
     }
 
     public void SelectNPC(NPCController npc) 
     {
-        for (int i=0; i< NPCManager.Instance.npcs.Length; i++) 
+        for (int i=0; i< GameManager.Instance.NPCs.Length; i++) 
         {
-            if (NPCManager.Instance.npcs[i] == npc)
+            if (GameManager.Instance.NPCs[i] == npc)
             {
-                NPCManager.Instance.npcs[i].ChangeNPCColor(selectedMaterial);
+                GameManager.Instance.NPCs[i].ChangeNPCColor(selectedMaterial);
             }
             else 
             {
-                NPCManager.Instance.npcs[i].ChangeNPCColor(unselectedMaterial);
+                GameManager.Instance.NPCs[i].ChangeNPCColor(unselectedMaterial);
             }
         }
 
+        if (selectedNPC != null) selectedNPC.OnPropertyChange -= UpdateUI;
         selectedNPC = npc;
+        selectedNPC.OnPropertyChange += UpdateUI;
         UpdateUI(npc);
     }
 
@@ -73,5 +75,10 @@ public class UIManager : MonoBehaviour
             energyText.text = "Energy " + selectedNPC.stats.energy + "/100";
             hungerText.text = "Hunger " + selectedNPC.stats.hunger + "/100";
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (selectedNPC != null) selectedNPC.OnPropertyChange -= UpdateUI;
     }
 }

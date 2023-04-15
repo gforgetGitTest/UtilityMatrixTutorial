@@ -19,6 +19,9 @@ namespace TL.Core
         public Stats stats;
         public Inventory inventory;
 
+        [SerializeField] private float HungerTick = 5.0f;
+        [SerializeField] private float EnergyTick = 2.5f;
+
         [SerializeField]
         private Renderer mainRenderer;
 
@@ -29,10 +32,23 @@ namespace TL.Core
         }
 
         // Start is called before the first frame update
-        void Start()
+        IEnumerator Start()
         {
             mover = GetComponent<MoveController>();
             aiBrain = GetComponent<AIBrain>();
+
+            while (GameManager.Instance == null) 
+            {
+                yield return null;
+            }
+
+            StartCoroutine(EnergyRoutine());
+            StartCoroutine(HungerRoutine());
+
+        }
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
         }
 
         public void ChangeNPCColor(Material material) 
@@ -61,45 +77,237 @@ namespace TL.Core
         }
 
         #region Coroutine
-
-        public void DoWork(int time) 
-        {
-            StartCoroutine(WorkCoroutine(time));
-        }
-        public void DoSleep(int time)
-        {
-            StartCoroutine(SleepCoroutine(time));
+        public void CancelCurrentAction() 
+        { 
+            //TODO: implement a function that cancel the current action
         }
 
-        IEnumerator WorkCoroutine(int time) 
+        public void DoWork() 
         {
-            int counter = time;
-            while (counter > 0) 
+            StartCoroutine(WorkCoroutine());
+        }
+        public void DoSleep()
+        {
+            StartCoroutine(SleepCoroutine());
+        }
+        public void DoEat()
+        {
+            StartCoroutine(EatCoroutine());
+        }
+        public void DoBuyFood()
+        {
+            StartCoroutine(BuyFoodCoroutine());
+        }
+
+        public void DoSellWood() 
+        {
+            StartCoroutine(SellWoodCoroutine());
+        }
+
+        IEnumerator WorkCoroutine() 
+        {
+            if (!GameManager.Instance.Tree.ValidateRequirement(this))
             {
-                yield return new WaitForSeconds(1);
-                counter--;
+                Debug.Log(transform.name + " : I do not have enough energy to work!");
+                OnFinishedAction();
+                yield break;
             }
 
-            Debug.Log("I just harvested 1 resource!");
-            // Logic to update things involved with work
+            if (GameManager.Instance.Tree.RequestInteraction(this))
+            {
+                mover.MoveTo(GameManager.Instance.Tree.InteractPosition.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+
+                GameManager.Instance.Tree.Interact(this);
+
+                yield return new WaitForSeconds(GameManager.Instance.Tree.TimeToServe);
+            }
+            else 
+            {
+                mover.MoveTo(GameManager.Instance.Tree.WaitingArea.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+            }
 
             // Decide our new best action after you finished this one
             OnFinishedAction();
         }
 
-        IEnumerator SleepCoroutine(int time)
+        IEnumerator SleepCoroutine()
         {
-            int counter = time;
-            while (counter > 0)
+
+            if (GameManager.Instance.House.RequestInteraction(this))
             {
-                yield return new WaitForSeconds(1);
-                counter--;
+                mover.MoveTo(GameManager.Instance.House.InteractPosition.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+
+                GameManager.Instance.House.Interact(this);
+
+                yield return new WaitForSeconds(GameManager.Instance.House.TimeToServe);
             }
-            Debug.Log("I slept and gain 1 energy!");
-            //Logic to update energy
+            else
+            {
+                mover.MoveTo(GameManager.Instance.House.WaitingArea.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+            }
 
             // Decide our new best action after you finished this one
             OnFinishedAction();
+        }
+
+        IEnumerator EatCoroutine()
+        {
+            if (inventory.food == 0) 
+            {
+                Debug.Log(transform.name + " : I can't eat, I have no food !");
+                OnFinishedAction();
+                yield break;
+            }
+
+            //find closest wait area by sorting all wait positions and picking the first one
+            List<Vector3> points = GameManager.Instance.WaitPositions;
+            points.Sort(delegate (Vector3 a, Vector3 b)
+            {
+                return Vector3.Distance(transform.position, a).CompareTo(Vector3.Distance(transform.position, b));
+            });
+
+            mover.MoveTo(points[0]);
+            while (!mover.HasArrived())
+            {
+                yield return null;
+            }
+
+            //eat - transform food into lowering hunger score
+            yield return new WaitForSeconds(1f);
+
+            inventory.food -= 1;
+            stats.hunger -= 5;
+        }
+
+        IEnumerator BuyFoodCoroutine()
+        {
+            if (!GameManager.Instance.Cafeteria.ValidateRequirement(this))
+            {
+                Debug.Log(transform.name + " : I do not have enough money to buy food!");
+                OnFinishedAction();
+                yield break;
+            }
+
+            if (GameManager.Instance.Cafeteria.RequestInteraction(this))
+            {
+                mover.MoveTo(GameManager.Instance.Cafeteria.InteractPosition.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+
+                GameManager.Instance.Cafeteria.Interact(this);
+
+                yield return new WaitForSeconds(GameManager.Instance.Cafeteria.TimeToServe);
+            }
+            else
+            {
+                mover.MoveTo(GameManager.Instance.Cafeteria.WaitingArea.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+            }
+
+            // Decide our new best action after you finished this one
+            OnFinishedAction();
+        }
+
+        IEnumerator SellWoodCoroutine()
+        {
+            if (!GameManager.Instance.WoodReserve.ValidateRequirement(this))
+            {
+                Debug.Log(transform.name + " : I do not have wood to sell !");
+                OnFinishedAction();
+                yield break;
+            }
+
+            if (GameManager.Instance.WoodReserve.RequestInteraction(this))
+            {
+                mover.MoveTo(GameManager.Instance.WoodReserve.InteractPosition.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+
+                GameManager.Instance.WoodReserve.Interact(this);
+
+                yield return new WaitForSeconds(GameManager.Instance.WoodReserve.TimeToServe);
+            }
+            else
+            {
+                mover.MoveTo(GameManager.Instance.WoodReserve.WaitingArea.position);
+                while (!mover.HasArrived())
+                {
+                    yield return null;
+                }
+            }
+
+            // Decide our new best action after you finished this one
+            OnFinishedAction();
+        }
+
+        IEnumerator EnergyRoutine() 
+        {
+            yield return new WaitForSeconds(EnergyTick);
+            while (true)
+            {
+                stats.energy -= 1;
+                yield return new WaitForSeconds(EnergyTick);
+            }
+        }
+        IEnumerator HungerRoutine() 
+        {
+            yield return new WaitForSeconds(HungerTick);
+            while (true) 
+            {
+                stats.hunger += 1;
+                yield return new WaitForSeconds(HungerTick);
+            }
+        }
+
+        #endregion
+
+        #region AddProperties
+        public void AddFood(int addedValue)
+        {
+            inventory.food += addedValue;
+        }
+
+        public void AddWood(int addedValue) 
+        {
+            inventory.wood += addedValue;
+        }
+
+        public void AddMoney(int addedValue)
+        {
+            inventory.money += addedValue;
+        }
+
+        public void AddEnergy(int addedValue)
+        {
+            stats.energy += addedValue;
+        }
+
+        public void AddHunger(int addedValue)
+        {
+            stats.hunger += addedValue;
         }
         #endregion
     }
@@ -107,7 +315,7 @@ namespace TL.Core
     public class Inventory
     {
         private NPCController npc;
-        public float food
+        public int food
         {
             get
             {
@@ -120,9 +328,9 @@ namespace TL.Core
                 npc.CallOnPropertyChange();
             }
         }
-        private float _food;
+        private int _food;
 
-        public float wood
+        public int wood
         {
             get
             {
@@ -135,9 +343,9 @@ namespace TL.Core
                 npc.CallOnPropertyChange();
             }
         }
-        private float _wood;
+        private int _wood;
 
-        public float money
+        public int money
         {
             get
             {
@@ -150,10 +358,10 @@ namespace TL.Core
                 npc.CallOnPropertyChange();
             }
         }
-        private float _money;
+        private int _money;
 
 
-        public Inventory(NPCController _npc, float _food = 10.0f, float _wood = 0.0f, float _money = 0.0f)
+        public Inventory(NPCController _npc, int _food = 10, int _wood = 5, int _money = 10)
         {
             npc = _npc;
             food = _food;
@@ -165,7 +373,7 @@ namespace TL.Core
     public class Stats 
     {
         private NPCController npc;
-        public float energy
+        public int energy
         {
             get 
             {
@@ -178,9 +386,9 @@ namespace TL.Core
                 npc.CallOnPropertyChange();
             }
         }
-        private float _energy;
+        private int _energy;
 
-        public float hunger
+        public int hunger
         {
             get
             {
@@ -193,10 +401,9 @@ namespace TL.Core
                 npc.CallOnPropertyChange();
             }
         }
-        private float _hunger;
+        private int _hunger;
 
-
-        public Stats(NPCController _npc, float _energy = 100.0f, float _hunger = 0.0f) 
+        public Stats(NPCController _npc, int _energy = 85, int _hunger = 10) 
         {
             npc = _npc;
             energy = _energy;

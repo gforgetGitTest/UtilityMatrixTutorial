@@ -7,17 +7,25 @@ namespace TL.Core
 {
     public class MoveController : MonoBehaviour
     {
-        private NavMeshAgent agent;
+        private NavMeshAgent Agent;
+        private Vector3 Destination;
 
         // Start is called before the first frame update
         void Start()
         {
-            agent = GetComponent<NavMeshAgent>();
+            Agent = GetComponent<NavMeshAgent>();
         }
 
         public void MoveTo(Vector3 position) 
         {
-            agent.destination = position;
+            Destination = position;
+            Agent.SetDestination(position);
+        }
+
+        public bool HasArrived() 
+        {
+            //Debug.Log(Vector3.SqrMagnitude(Destination - transform.position));
+            return Vector3.SqrMagnitude(Destination - transform.position) < 0.01f;
         }
     }
 }

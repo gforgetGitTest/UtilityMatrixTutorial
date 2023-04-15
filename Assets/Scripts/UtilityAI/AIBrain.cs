@@ -20,10 +20,12 @@ namespace TL.Core
         // Update is called once per frame
         void Update()
         {
-            if (bestAction == null) 
+            if (bestAction == null)
             {
                 DecideBestAction(npc.actionsAvailable);
             }
+
+            // create a loop to see if the current action is still the best and cancel it
         }
 
         //Loop through all the available actions

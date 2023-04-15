@@ -124,7 +124,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1508356147080894682}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -149,6 +149,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b2bf1b34939844448899321aa6743e71, type: 2}
   - {fileID: 11400000, guid: 11d742963b91dc44092966db39a89400, type: 2}
   - {fileID: 11400000, guid: 5544ab4573e79a447af1a70ad8f46404, type: 2}
+  HungerTick: 5
+  EnergyTick: 2.5
   mainRenderer: {fileID: 1508356147559373250}
 --- !u!114 &1508356147080894681
 MonoBehaviour:
