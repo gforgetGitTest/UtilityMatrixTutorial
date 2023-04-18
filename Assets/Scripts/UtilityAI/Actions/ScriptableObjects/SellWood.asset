@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: SellWood
   m_EditorClassIdentifier: 
   Name: SellWood
-  considerations: []
+  considerations:
+  - {fileID: 11400000, guid: 168ea729d1a2b4d4aa7e34fe12a695b3, type: 2}
+  - {fileID: 11400000, guid: d3afa088fbd9d144cbd0ce42cdb782ae, type: 2}

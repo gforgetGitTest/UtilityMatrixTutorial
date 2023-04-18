@@ -6,13 +6,13 @@ using TL.UtilityAI;
 
 namespace TL.UtilityAI.Considerations
 {
-    [CreateAssetMenu(fileName ="MoneyConsideration", menuName = "UtilityAI/Considerations/Money Consideration")]
-    public class MoneyConsideration : Consideration
+    [CreateAssetMenu(fileName ="WoodConsideration", menuName = "UtilityAI/Considerations/Wood Consideration")]
+    public class WoodConsideration : Consideration
     {
         [SerializeField] private AnimationCurve responseCurve;
         public override float ScoreConsideration(NPCController npc)
         {
-            score = responseCurve.Evaluate(Mathf.Clamp01((float)npc.inventory.money / 1000.0f));
+            score = responseCurve.Evaluate(Mathf.Clamp01((float)npc.inventory.wood / 100.0f));
             return score;
         }
     }

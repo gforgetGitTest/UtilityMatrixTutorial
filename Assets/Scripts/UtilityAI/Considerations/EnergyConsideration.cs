@@ -12,7 +12,8 @@ namespace TL.UtilityAI.Considerations
         [SerializeField] private AnimationCurve responseCurve;
         public override float ScoreConsideration(NPCController npc)
         {
-            return 0.1f;
+            score = responseCurve.Evaluate(Mathf.Clamp01((float)npc.stats.energy / 100.0f));
+            return score;
         }
     }
 }

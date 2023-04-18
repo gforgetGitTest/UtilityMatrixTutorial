@@ -2365,7 +2365,7 @@ GameObject:
   - component: {fileID: 1585218153}
   - component: {fileID: 1585218152}
   m_Layer: 5
-  m_Name: Wood Reserve (1)
+  m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

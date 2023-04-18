@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: BuyFood
   m_EditorClassIdentifier: 
   Name: BuyFood
-  considerations: []
+  considerations:
+  - {fileID: 11400000, guid: 66fc30f93161820439b7f69f1b834279, type: 2}
+  - {fileID: 11400000, guid: 0cb4601ce59a1614c9028de8b879d24e, type: 2}

@@ -146,9 +146,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionsAvailable:
-  - {fileID: 11400000, guid: b2bf1b34939844448899321aa6743e71, type: 2}
   - {fileID: 11400000, guid: 11d742963b91dc44092966db39a89400, type: 2}
+  - {fileID: 11400000, guid: b2bf1b34939844448899321aa6743e71, type: 2}
   - {fileID: 11400000, guid: 5544ab4573e79a447af1a70ad8f46404, type: 2}
+  - {fileID: 11400000, guid: ad82cc94e53769944b19a6f5a3702baf, type: 2}
+  - {fileID: 11400000, guid: f971e42edb72b0448bf8c7ec19415531, type: 2}
   HungerTick: 5
   EnergyTick: 2.5
   mainRenderer: {fileID: 1508356147559373250}

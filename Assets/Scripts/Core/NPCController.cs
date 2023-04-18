@@ -121,6 +121,14 @@ namespace TL.Core
                     yield return null;
                 }
 
+                //something can happen while moving that defy the requirement for the action to be executed
+                if (!GameManager.Instance.Tree.ValidateRequirement(this))
+                {
+                    Debug.Log(transform.name + " : I do not have enough energy to work!");
+                    OnFinishedAction();
+                    yield break;
+                }
+
                 GameManager.Instance.Tree.Interact(this);
 
                 yield return new WaitForSeconds(GameManager.Instance.Tree.TimeToServe);
@@ -188,11 +196,21 @@ namespace TL.Core
                 yield return null;
             }
 
+            //something can happen while moving that defy the requirement for the action to be executed
+            if (inventory.food == 0)
+            {
+                Debug.Log(transform.name + " : I can't eat, I have no food !");
+                OnFinishedAction();
+                yield break;
+            }
+
             //eat - transform food into lowering hunger score
             yield return new WaitForSeconds(1f);
 
             inventory.food -= 1;
             stats.hunger -= 5;
+
+            OnFinishedAction();
         }
 
         IEnumerator BuyFoodCoroutine()
@@ -210,6 +228,14 @@ namespace TL.Core
                 while (!mover.HasArrived())
                 {
                     yield return null;
+                }
+
+                //something can happen while moving that defy the requirement for the action to be executed
+                if (!GameManager.Instance.Cafeteria.ValidateRequirement(this))
+                {
+                    Debug.Log(transform.name + " : I do not have enough money to buy food!");
+                    OnFinishedAction();
+                    yield break;
                 }
 
                 GameManager.Instance.Cafeteria.Interact(this);
@@ -244,6 +270,14 @@ namespace TL.Core
                 while (!mover.HasArrived())
                 {
                     yield return null;
+                }
+
+                //something can happen while moving that defy the requirement for the action to be executed
+                if (!GameManager.Instance.WoodReserve.ValidateRequirement(this))
+                {
+                    Debug.Log(transform.name + " : I do not have wood to sell !");
+                    OnFinishedAction();
+                    yield break;
                 }
 
                 GameManager.Instance.WoodReserve.Interact(this);
@@ -403,7 +437,7 @@ namespace TL.Core
         }
         private int _hunger;
 
-        public Stats(NPCController _npc, int _energy = 85, int _hunger = 10) 
+        public Stats(NPCController _npc, int _energy = 0, int _hunger = 10) 
         {
             npc = _npc;
             energy = _energy;

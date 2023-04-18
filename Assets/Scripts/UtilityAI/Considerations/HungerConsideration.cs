@@ -13,9 +13,7 @@ namespace TL.UtilityAI.Considerations
 
         public override float ScoreConsideration(NPCController npc)
         {
-            //score = responseCurve.Evaluate(Mathf.Clamp01(npc.stats.hunger/100.0f));
-            //score = responseCurve.Evaluate(Mathf.Clamp01(50f/100f));
-            score = 0.5f;
+            score = responseCurve.Evaluate(Mathf.Clamp01((float)npc.stats.hunger/ 100.0f));
             return score;
         }
     }
