@@ -9,28 +9,11 @@ namespace TL.Core
     {
         public bool finishedDeciding { get; set; }
         public Action bestAction { get; set; }
-        private NPCController npc;
-
-        // Start is called before the first frame update
-        void Start()
-        {
-            npc = GetComponent<NPCController>();
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            if (bestAction == null)
-            {
-                DecideBestAction(npc.actionsAvailable);
-            }
-
-            // create a loop to see if the current action is still the best and cancel it
-        }
+        [SerializeField]private NPCController npc;
 
         //Loop through all the available actions
         // Give me the highest scoring action
-        public void DecideBestAction(Action[] actionsAvailable) 
+        public Action DecideBestAction(Action[] actionsAvailable) 
         {
             float score = 0f;
             int nextBestActionIndex = 0;
@@ -46,6 +29,26 @@ namespace TL.Core
 
             bestAction = actionsAvailable[nextBestActionIndex];
             finishedDeciding = true;
+
+            return bestAction; 
+        }
+
+        // Return the best action without actually picking it
+        public Action LookUpBestAction(Action[] actionsAvailable) 
+        {
+            float score = 0f;
+            int nextBestActionIndex = 0;
+
+            for (int i = 0; i < actionsAvailable.Length; i++)
+            {
+                if (ScoreAction(actionsAvailable[i]) > score)
+                {
+                    nextBestActionIndex = i;
+                    score = actionsAvailable[i].score;
+                }
+            }
+
+            return actionsAvailable[nextBestActionIndex]; ;
         }
 
         //Loop through all the considerations of the action

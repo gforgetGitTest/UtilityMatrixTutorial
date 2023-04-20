@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db3284f847a24e64fad15a1441b63fb5, type: 3}
-  m_Name: EnergyConsideration
+  m_Script: {fileID: 11500000, guid: d54a9779430faaa47b952a239a1526f5, type: 3}
+  m_Name: InteractiveObjectConsiderationForWork
   m_EditorClassIdentifier: 
-  Name: EnergyConsideration
+  Name: InteractiveObjectConsiderationForBuyFood
+  InteractiveObject: 0

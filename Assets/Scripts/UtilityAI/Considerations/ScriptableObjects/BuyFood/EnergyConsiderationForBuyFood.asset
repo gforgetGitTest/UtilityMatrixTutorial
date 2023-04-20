@@ -9,24 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183a4d3bf5d771f4896add824d76d3d9, type: 3}
-  m_Name: MoneyConsiderationForBuyFood
+  m_Script: {fileID: 11500000, guid: db3284f847a24e64fad15a1441b63fb5, type: 3}
+  m_Name: EnergyConsiderationForBuyFood
   m_EditorClassIdentifier: 
-  Name: MoneyConsiderationForBuyFood
+  Name: EnergyConsiderationForBuyFood
   responseCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 200
-      outSlope: 200
+      inSlope: 100
+      outSlope: 100
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.005
+      time: 0.01
       value: 1
       inSlope: 0
       outSlope: 0
@@ -44,5 +44,5 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
-    m_PostInfinity: 0
+    m_PostInfinity: 2
     m_RotationOrder: 4

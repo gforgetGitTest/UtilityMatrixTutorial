@@ -11,19 +11,29 @@ namespace TL.Core
     {
         public delegate void OnPropertyChangeEvent(NPCController npc);
         public event OnPropertyChangeEvent OnPropertyChange;
-        public MoveController mover { get; set; }
 
-        public AIBrain aiBrain { get; set; }
+        public delegate void OnNPCDeathEvent(NPCController npc);
+        public event OnNPCDeathEvent OnNPCDeath;
+
+        public MoveController mover;
+
+        public AIBrain aiBrain;
         public TL.UtilityAI.Action[] actionsAvailable;
+
+        public float MaxSpeed = 7.0f;
+
+        [SerializeField] private Renderer mainRenderer;
 
         public Stats stats;
         public Inventory inventory;
 
-        [SerializeField] private float HungerTick = 5.0f;
-        [SerializeField] private float EnergyTick = 2.5f;
+        private float HungerTick = 3.5f;
+        private float EnergyTick = 2.5f;
 
-        [SerializeField]
-        private Renderer mainRenderer;
+        private TL.UtilityAI.Action oldAction;
+        private TL.UtilityAI.Action currentAction;
+
+        [HideInInspector]public InteractiveObject usingInteractiveObject;
 
         private void Awake()
         {
@@ -34,9 +44,6 @@ namespace TL.Core
         // Start is called before the first frame update
         IEnumerator Start()
         {
-            mover = GetComponent<MoveController>();
-            aiBrain = GetComponent<AIBrain>();
-
             while (GameManager.Instance == null) 
             {
                 yield return null;
@@ -45,7 +52,20 @@ namespace TL.Core
             StartCoroutine(EnergyRoutine());
             StartCoroutine(HungerRoutine());
 
+            currentAction = aiBrain.DecideBestAction(actionsAvailable);
+            oldAction = currentAction;
         }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (aiBrain.finishedDeciding)
+            {
+                aiBrain.finishedDeciding = false;
+                aiBrain.bestAction.Execute(this);
+            }
+        }
+
         private void OnDestroy()
         {
             StopAllCoroutines();
@@ -56,16 +76,6 @@ namespace TL.Core
             mainRenderer.material = material;
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            if (aiBrain.finishedDeciding) 
-            {
-                aiBrain.finishedDeciding = false;
-                aiBrain.bestAction.Execute(this);
-            }
-        }
-
         public void CallOnPropertyChange() 
         {
             if (OnPropertyChange != null) OnPropertyChange(this);
@@ -73,7 +83,13 @@ namespace TL.Core
 
         public void OnFinishedAction() 
         {
-            aiBrain.DecideBestAction(actionsAvailable);
+            currentAction = aiBrain.DecideBestAction(actionsAvailable);
+            if (oldAction != currentAction && usingInteractiveObject != null) 
+            {
+                usingInteractiveObject.ReleaseInteractiveObject(this);
+                usingInteractiveObject = null;
+            }
+            oldAction = currentAction;
         }
 
         #region Coroutine
@@ -106,36 +122,36 @@ namespace TL.Core
 
         IEnumerator WorkCoroutine() 
         {
-            if (!GameManager.Instance.Tree.ValidateRequirement(this))
+            if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have enough energy to work!");
                 OnFinishedAction();
                 yield break;
             }
 
-            if (GameManager.Instance.Tree.RequestInteraction(this))
+            if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].RequestInteraction(this))
             {
-                mover.MoveTo(GameManager.Instance.Tree.InteractPosition.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
                 }
 
                 //something can happen while moving that defy the requirement for the action to be executed
-                if (!GameManager.Instance.Tree.ValidateRequirement(this))
+                if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].ValidateRequirement(this))
                 {
                     Debug.Log(transform.name + " : I do not have enough energy to work!");
                     OnFinishedAction();
                     yield break;
                 }
 
-                GameManager.Instance.Tree.Interact(this);
+                GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].Interact(this);
 
-                yield return new WaitForSeconds(GameManager.Instance.Tree.TimeToServe);
+                yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].TimeToServe);
             }
             else 
             {
-                mover.MoveTo(GameManager.Instance.Tree.WaitingArea.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].WaitingArea.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
@@ -149,21 +165,21 @@ namespace TL.Core
         IEnumerator SleepCoroutine()
         {
 
-            if (GameManager.Instance.House.RequestInteraction(this))
+            if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].RequestInteraction(this))
             {
-                mover.MoveTo(GameManager.Instance.House.InteractPosition.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
                 }
 
-                GameManager.Instance.House.Interact(this);
+                GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].Interact(this);
 
-                yield return new WaitForSeconds(GameManager.Instance.House.TimeToServe);
+                yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].TimeToServe);
             }
             else
             {
-                mover.MoveTo(GameManager.Instance.House.WaitingArea.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].WaitingArea.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
@@ -209,42 +225,43 @@ namespace TL.Core
 
             inventory.food -= 1;
             stats.hunger -= 5;
+            stats.energy += 2;
 
             OnFinishedAction();
         }
 
         IEnumerator BuyFoodCoroutine()
         {
-            if (!GameManager.Instance.Cafeteria.ValidateRequirement(this))
+            if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have enough money to buy food!");
                 OnFinishedAction();
                 yield break;
             }
 
-            if (GameManager.Instance.Cafeteria.RequestInteraction(this))
+            if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].RequestInteraction(this))
             {
-                mover.MoveTo(GameManager.Instance.Cafeteria.InteractPosition.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
                 }
 
                 //something can happen while moving that defy the requirement for the action to be executed
-                if (!GameManager.Instance.Cafeteria.ValidateRequirement(this))
+                if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].ValidateRequirement(this))
                 {
                     Debug.Log(transform.name + " : I do not have enough money to buy food!");
                     OnFinishedAction();
                     yield break;
                 }
 
-                GameManager.Instance.Cafeteria.Interact(this);
+                GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].Interact(this);
 
-                yield return new WaitForSeconds(GameManager.Instance.Cafeteria.TimeToServe);
+                yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].TimeToServe);
             }
             else
             {
-                mover.MoveTo(GameManager.Instance.Cafeteria.WaitingArea.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].WaitingArea.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
@@ -257,36 +274,36 @@ namespace TL.Core
 
         IEnumerator SellWoodCoroutine()
         {
-            if (!GameManager.Instance.WoodReserve.ValidateRequirement(this))
+            if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have wood to sell !");
                 OnFinishedAction();
                 yield break;
             }
 
-            if (GameManager.Instance.WoodReserve.RequestInteraction(this))
+            if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].RequestInteraction(this))
             {
-                mover.MoveTo(GameManager.Instance.WoodReserve.InteractPosition.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
                 }
 
                 //something can happen while moving that defy the requirement for the action to be executed
-                if (!GameManager.Instance.WoodReserve.ValidateRequirement(this))
+                if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].ValidateRequirement(this))
                 {
                     Debug.Log(transform.name + " : I do not have wood to sell !");
                     OnFinishedAction();
                     yield break;
                 }
 
-                GameManager.Instance.WoodReserve.Interact(this);
+                GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].Interact(this);
 
-                yield return new WaitForSeconds(GameManager.Instance.WoodReserve.TimeToServe);
+                yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].TimeToServe);
             }
             else
             {
-                mover.MoveTo(GameManager.Instance.WoodReserve.WaitingArea.position);
+                mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].WaitingArea.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
@@ -312,9 +329,22 @@ namespace TL.Core
             while (true) 
             {
                 stats.hunger += 1;
+                if (stats.hunger == 100) 
+                {
+                    NPCDeath();
+                }
                 yield return new WaitForSeconds(HungerTick);
             }
+
+
         }
+
+        private void NPCDeath() 
+        {
+            if (OnNPCDeath != null) OnNPCDeath(this);
+            StopAllCoroutines();
+            Destroy(gameObject);
+        } 
 
         #endregion
 
@@ -395,7 +425,7 @@ namespace TL.Core
         private int _money;
 
 
-        public Inventory(NPCController _npc, int _food = 10, int _wood = 5, int _money = 10)
+        public Inventory(NPCController _npc, int _food = 0, int _wood = 0, int _money = 0)
         {
             npc = _npc;
             food = _food;
@@ -417,6 +447,7 @@ namespace TL.Core
             set 
             {
                 _energy = Mathf.Clamp(value, 0, 100);
+                npc.mover.SetMovementSpeed(npc.MaxSpeed*Mathf.Clamp((float)_energy/100, 0.25f, 1.0f));
                 npc.CallOnPropertyChange();
             }
         }
@@ -437,7 +468,7 @@ namespace TL.Core
         }
         private int _hunger;
 
-        public Stats(NPCController _npc, int _energy = 0, int _hunger = 10) 
+        public Stats(NPCController _npc, int _energy = 100, int _hunger = 0) 
         {
             npc = _npc;
             energy = _energy;

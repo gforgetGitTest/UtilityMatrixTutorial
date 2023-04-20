@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: BuyFood
   considerations:
-  - {fileID: 11400000, guid: 66fc30f93161820439b7f69f1b834279, type: 2}
+  - {fileID: 11400000, guid: 78d2520e95a45334ca8b49931a7a1cb7, type: 2}
   - {fileID: 11400000, guid: 0cb4601ce59a1614c9028de8b879d24e, type: 2}
+  - {fileID: 11400000, guid: 998a0b6c149c3c3419ce0517c8868efc, type: 2}
+  - {fileID: 11400000, guid: 556c6948d29967440852aaf9e2af14d9, type: 2}

@@ -9,7 +9,7 @@ public class Cafeteria : InteractiveObject
     public int addedFood = 1;
     public override bool ValidateRequirement(NPCController npc)
     {
-        return npc.inventory.money >= takenMoney;
+        return npc.inventory.money >= takenMoney && npc.stats.energy > 0;
     }
 
     protected override void ResultAction(NPCController npc)

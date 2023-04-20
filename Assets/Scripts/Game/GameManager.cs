@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TL.Core;
 using UnityEngine;
+using static GlobalEnum;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,10 +11,12 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]private Transform[] WaitPositionsTransform;
 
-    public TreeResource Tree;
-    public Cafeteria Cafeteria;
-    public WoodReserve WoodReserve;
-    public House House;
+    [SerializeField] private TreeResource Tree;
+    [SerializeField] private Cafeteria Cafeteria;
+    [SerializeField] private WoodReserve WoodReserve;
+    [SerializeField] private House House;
+
+    public Dictionary<GlobalEnum.InteractiveObject, InteractiveObject> InteractiveObjects = new Dictionary<GlobalEnum.InteractiveObject, InteractiveObject>();
 
     [HideInInspector]public List<Vector3>WaitPositions = new List<Vector3>();
     private void Awake()
@@ -22,6 +25,11 @@ public class GameManager : MonoBehaviour
         {
             WaitPositions.Add(WaitPositionsTransform[i].position);
         }
+
+        InteractiveObjects.Add(GlobalEnum.InteractiveObject.Tree, Tree);
+        InteractiveObjects.Add(GlobalEnum.InteractiveObject.Cafeteria, Cafeteria);
+        InteractiveObjects.Add(GlobalEnum.InteractiveObject.WoodReserve, WoodReserve);
+        InteractiveObjects.Add(GlobalEnum.InteractiveObject.House, House);
 
         Instance = this;
     }

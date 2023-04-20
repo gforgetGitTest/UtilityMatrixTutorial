@@ -145,15 +145,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a46305db0a0d38a4eb5644697562028c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mover: {fileID: 1508356147080894681}
+  aiBrain: {fileID: 1508356147080894680}
   actionsAvailable:
   - {fileID: 11400000, guid: 11d742963b91dc44092966db39a89400, type: 2}
   - {fileID: 11400000, guid: b2bf1b34939844448899321aa6743e71, type: 2}
   - {fileID: 11400000, guid: 5544ab4573e79a447af1a70ad8f46404, type: 2}
   - {fileID: 11400000, guid: ad82cc94e53769944b19a6f5a3702baf, type: 2}
   - {fileID: 11400000, guid: f971e42edb72b0448bf8c7ec19415531, type: 2}
-  HungerTick: 5
-  EnergyTick: 2.5
+  MaxSpeed: 7
   mainRenderer: {fileID: 1508356147559373250}
+  usingInteractiveObject: {fileID: 0}
 --- !u!114 &1508356147080894681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,6 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5a9de600108b164dbb01c599aad6f40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Agent: {fileID: 1508356147080894679}
 --- !u!114 &1508356147080894680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178,6 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a0ae368483af249970facd87349b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  npc: {fileID: 1508356147080894678}
 --- !u!195 &1508356147080894679
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -187,8 +191,8 @@ NavMeshAgent:
   m_GameObject: {fileID: 1508356147080894682}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
+  m_Radius: 0.01
+  m_Speed: 7
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -212,7 +216,7 @@ GameObject:
   - component: {fileID: 1508356147559373251}
   - component: {fileID: 1508356147559373250}
   - component: {fileID: 1508356147559373253}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}

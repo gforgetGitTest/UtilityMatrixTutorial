@@ -9,24 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183a4d3bf5d771f4896add824d76d3d9, type: 3}
-  m_Name: MoneyConsiderationForBuyFood
+  m_Script: {fileID: 11500000, guid: f44ee25c87ec2aa42beda7ff8feb4349, type: 3}
+  m_Name: FoodConsiderationForBuyFood
   m_EditorClassIdentifier: 
-  Name: MoneyConsiderationForBuyFood
+  Name: FoodConsiderationForBuyFood
   responseCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
-      inSlope: 200
-      outSlope: 200
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.005
       value: 1
       inSlope: 0
       outSlope: 0
@@ -35,14 +26,32 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
+      time: 0.13382113
+      value: 0.98293686
+      inSlope: -0.40183362
+      outSlope: -0.40183362
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.047195006
+    - serializedVersion: 3
+      time: 0.7505748
+      value: 0.09341961
+      inSlope: -1.3328719
+      outSlope: -1.3328719
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0
+      inSlope: -0.3745396
+      outSlope: -0.3745396
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
-    m_PostInfinity: 0
+    m_PostInfinity: 2
     m_RotationOrder: 4

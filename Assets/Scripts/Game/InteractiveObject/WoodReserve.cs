@@ -9,7 +9,7 @@ public class WoodReserve : InteractiveObject
     public int addedMoney = 2;
     public override bool ValidateRequirement(NPCController npc)
     {
-        return npc.inventory.wood >= takenWood;
+        return npc.inventory.wood >= takenWood && npc.stats.energy > 0;
     }
 
     protected override void ResultAction(NPCController npc)

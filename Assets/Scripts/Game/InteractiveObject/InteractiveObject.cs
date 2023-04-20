@@ -9,30 +9,37 @@ public abstract class InteractiveObject : MonoBehaviour
     public Transform WaitingArea;
     public float TimeToServe;
 
-    public Queue<NPCController> NPCQueue = new Queue<NPCController>();
-
+    private NPCController usingNPC;
     public abstract bool ValidateRequirement(NPCController npc); 
     public bool RequestInteraction(NPCController npc) 
     {
-        if (!NPCQueue.Contains(npc)) 
+        if (usingNPC == null || usingNPC == npc)
         {
-            NPCQueue.Enqueue(npc);
-        }
-        
-        if (NPCQueue.Peek() == npc)
-        {
+            usingNPC = npc;
+            npc.usingInteractiveObject = this;
             return true;
         }
-        else
-        {
+        else 
+        { 
             return false;
         }
     }
 
     public void Interact(NPCController npc) 
     {
-        NPCQueue.Dequeue();
         StartCoroutine(InteractingTimer(npc));
+    }
+    
+    public void ReleaseInteractiveObject(NPCController npc) 
+    {
+        if (npc == usingNPC) 
+        {
+            usingNPC = null;
+        }
+    }
+    public bool IsUsed(NPCController npc) 
+    { 
+        return usingNPC != null && usingNPC != npc;
     }
 
     protected IEnumerator InteractingTimer(NPCController npc) 

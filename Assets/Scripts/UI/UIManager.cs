@@ -9,6 +9,9 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [SerializeField]
+    private Camera mainCamera;
+
     [HideInInspector]
     public NPCController selectedNPC;
 
@@ -43,6 +46,21 @@ public class UIManager : MonoBehaviour
         SelectNPC(GameManager.Instance.NPCs[0]);
     }
 
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0)) 
+        {
+            RaycastHit hit;
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+            //Get the first object using the character layer (3)
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<3))
+            {
+                SelectNPC(hit.transform.parent.GetComponent<NPCController>());
+            }
+        }
+    }
+
     public void SelectNPC(NPCController npc) 
     {
         for (int i=0; i< GameManager.Instance.NPCs.Length; i++) 
@@ -59,8 +77,28 @@ public class UIManager : MonoBehaviour
 
         if (selectedNPC != null) selectedNPC.OnPropertyChange -= UpdateUI;
         selectedNPC = npc;
+        selectedNPC.OnNPCDeath += OnNPCDeath;
         selectedNPC.OnPropertyChange += UpdateUI;
+
         UpdateUI(npc);
+    }
+
+    private void OnNPCDeath(NPCController npc) 
+    {
+        if (selectedNPC == npc)
+        {
+            NPCId.text = "NPC Id : ";
+            foodText.text = "Food -/100";
+            woodText.text = "Wood -/100";
+            moneyText.text = "Money -/1000";
+
+            energyText.text = "Energy -/100";
+            hungerText.text = "Hunger -/100";
+
+            selectedNPC.OnPropertyChange -= UpdateUI;
+            selectedNPC.OnNPCDeath -= OnNPCDeath;
+            selectedNPC = null;
+        }
     }
 
     public void UpdateUI(NPCController npc) 
@@ -79,6 +117,9 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (selectedNPC != null) selectedNPC.OnPropertyChange -= UpdateUI;
+        if (selectedNPC != null) 
+        {
+            selectedNPC.OnPropertyChange -= UpdateUI;
+        }
     }
 }

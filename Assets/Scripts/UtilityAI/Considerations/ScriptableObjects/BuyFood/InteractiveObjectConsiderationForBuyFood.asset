@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1eb3ffe6c3ef5a4d93038009a618f3a, type: 3}
-  m_Name: Sleep
+  m_Script: {fileID: 11500000, guid: d54a9779430faaa47b952a239a1526f5, type: 3}
+  m_Name: InteractiveObjectConsiderationForBuyFood
   m_EditorClassIdentifier: 
-  Name: Sleep
-  considerations:
-  - {fileID: 11400000, guid: 28993f5e3e658654598aec7259cfcd59, type: 2}
-  - {fileID: 11400000, guid: 3dee4400832e7fe40837832d3e155335, type: 2}
+  Name: InteractiveObjectConsiderationForBuyFood
+  InteractiveObject: 1
