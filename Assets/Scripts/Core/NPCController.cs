@@ -15,6 +15,8 @@ namespace TL.Core
         public delegate void OnNPCDeathEvent(NPCController npc);
         public event OnNPCDeathEvent OnNPCDeath;
 
+        public Transform ActionTextAnchor;
+
         public MoveController mover;
 
         public AIBrain aiBrain;
@@ -32,8 +34,10 @@ namespace TL.Core
 
         private TL.UtilityAI.Action oldAction;
         private TL.UtilityAI.Action currentAction;
+        private bool CanCancelAction = true;
 
         [HideInInspector]public InteractiveObject usingInteractiveObject;
+        [HideInInspector]public string CurrentActionName = "Walking";
 
         private void Awake()
         {
@@ -59,6 +63,12 @@ namespace TL.Core
         // Update is called once per frame
         void Update()
         {
+            if (aiBrain.LookUpBestAction(actionsAvailable) != currentAction) 
+            {
+                //Stop Current Action
+                CancelCurrentAction();
+            }
+
             if (aiBrain.finishedDeciding)
             {
                 aiBrain.finishedDeciding = false;
@@ -83,6 +93,7 @@ namespace TL.Core
 
         public void OnFinishedAction() 
         {
+            CanCancelAction = true;
             currentAction = aiBrain.DecideBestAction(actionsAvailable);
             if (oldAction != currentAction && usingInteractiveObject != null) 
             {
@@ -94,34 +105,54 @@ namespace TL.Core
 
         #region Coroutine
         public void CancelCurrentAction() 
-        { 
-            //TODO: implement a function that cancel the current action
+        {
+            if (CanCancelAction) 
+            {
+                //Stop the actual action
+                StopCoroutine("WorkCoroutine");
+                StopCoroutine("SleepCoroutine");
+                StopCoroutine("EatCoroutine");
+                StopCoroutine("BuyFoodCoroutine");
+                StopCoroutine("SellWoodCoroutine");
+                StopCoroutine("GoRestCoroutine");
+                StopCoroutine("RestCoroutine");
+                //Change action by calling the OnFinishedAction event
+                OnFinishedAction();
+            }
         }
 
         public void DoWork() 
         {
-            StartCoroutine(WorkCoroutine());
+            StartCoroutine("WorkCoroutine");
         }
         public void DoSleep()
         {
-            StartCoroutine(SleepCoroutine());
+            StartCoroutine("SleepCoroutine");
         }
+
+        public void DoGoRest() 
+        {
+            StartCoroutine("GoRestCoroutine");
+        }
+
         public void DoEat()
         {
-            StartCoroutine(EatCoroutine());
+            StartCoroutine("EatCoroutine");
         }
         public void DoBuyFood()
         {
-            StartCoroutine(BuyFoodCoroutine());
+            StartCoroutine("BuyFoodCoroutine");
         }
 
         public void DoSellWood() 
         {
-            StartCoroutine(SellWoodCoroutine());
+            StartCoroutine("SellWoodCoroutine");
         }
 
         IEnumerator WorkCoroutine() 
         {
+            CurrentActionName = "Walking";
+
             if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have enough energy to work!");
@@ -131,6 +162,8 @@ namespace TL.Core
 
             if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].RequestInteraction(this))
             {
+                CanCancelAction = false;
+
                 mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
@@ -145,9 +178,13 @@ namespace TL.Core
                     yield break;
                 }
 
+                CurrentActionName = "Working";
                 GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].Interact(this);
 
                 yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Tree].TimeToServe);
+
+                // Decide our new best action after you finished this one
+                OnFinishedAction();
             }
             else 
             {
@@ -156,26 +193,31 @@ namespace TL.Core
                 {
                     yield return null;
                 }
+
+                StartCoroutine("RestCoroutine");
             }
 
-            // Decide our new best action after you finished this one
-            OnFinishedAction();
         }
 
         IEnumerator SleepCoroutine()
         {
-
+            CurrentActionName = "Walking";
             if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].RequestInteraction(this))
             {
+                CanCancelAction = false;
                 mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
                     yield return null;
                 }
 
+                CurrentActionName = "Sleeping";
                 GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].Interact(this);
 
                 yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.House].TimeToServe);
+                
+                // Decide our new best action after you finished this one
+                OnFinishedAction();
             }
             else
             {
@@ -184,14 +226,17 @@ namespace TL.Core
                 {
                     yield return null;
                 }
-            }
 
-            // Decide our new best action after you finished this one
-            OnFinishedAction();
+                StartCoroutine("RestCoroutine");
+
+            }
         }
 
         IEnumerator EatCoroutine()
         {
+            CurrentActionName = "Walking";
+            CanCancelAction = false;
+
             if (inventory.food == 0) 
             {
                 Debug.Log(transform.name + " : I can't eat, I have no food !");
@@ -220,6 +265,7 @@ namespace TL.Core
                 yield break;
             }
 
+            CurrentActionName = "Eating";
             //eat - transform food into lowering hunger score
             yield return new WaitForSeconds(1f);
 
@@ -232,6 +278,7 @@ namespace TL.Core
 
         IEnumerator BuyFoodCoroutine()
         {
+            CurrentActionName = "Walking";
             if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have enough money to buy food!");
@@ -241,6 +288,7 @@ namespace TL.Core
 
             if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].RequestInteraction(this))
             {
+                CanCancelAction = false;
                 mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
@@ -255,9 +303,13 @@ namespace TL.Core
                     yield break;
                 }
 
+                CurrentActionName = "Buying Food";
                 GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].Interact(this);
 
                 yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.Cafeteria].TimeToServe);
+                
+                // Decide our new best action after you finished this one
+                OnFinishedAction();
             }
             else
             {
@@ -266,14 +318,13 @@ namespace TL.Core
                 {
                     yield return null;
                 }
+                StartCoroutine("RestCoroutine");
             }
-
-            // Decide our new best action after you finished this one
-            OnFinishedAction();
         }
 
         IEnumerator SellWoodCoroutine()
         {
+            CurrentActionName = "Walking";
             if (!GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].ValidateRequirement(this))
             {
                 Debug.Log(transform.name + " : I do not have wood to sell !");
@@ -283,6 +334,7 @@ namespace TL.Core
 
             if (GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].RequestInteraction(this))
             {
+                CanCancelAction = false;
                 mover.MoveTo(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].InteractPosition.position);
                 while (!mover.HasArrived())
                 {
@@ -297,9 +349,13 @@ namespace TL.Core
                     yield break;
                 }
 
+                CurrentActionName = "Selling Wood";
                 GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].Interact(this);
 
                 yield return new WaitForSeconds(GameManager.Instance.InteractiveObjects[GlobalEnum.InteractiveObject.WoodReserve].TimeToServe);
+
+                // Decide our new best action after you finished this one
+                OnFinishedAction();
             }
             else
             {
@@ -308,9 +364,36 @@ namespace TL.Core
                 {
                     yield return null;
                 }
+                StartCoroutine("RestCoroutine");
+            }
+        }
+
+        IEnumerator GoRestCoroutine()
+        {
+            CurrentActionName = "Walking";
+
+            //find closest wait area by sorting all wait positions and picking the first one
+            List<Vector3> points = GameManager.Instance.WaitPositions;
+            points.Sort(delegate (Vector3 a, Vector3 b)
+            {
+                return Vector3.Distance(transform.position, a).CompareTo(Vector3.Distance(transform.position, b));
+            });
+
+            mover.MoveTo(points[0]);
+            while (!mover.HasArrived())
+            {
+                yield return null;
             }
 
-            // Decide our new best action after you finished this one
+            StartCoroutine("RestCoroutine");
+        }
+
+        IEnumerator RestCoroutine()
+        {
+            CurrentActionName = "Resting";
+            yield return new WaitForSeconds(1f);
+
+            stats.energy += 2;
             OnFinishedAction();
         }
 

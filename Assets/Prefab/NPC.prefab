@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &614304238699298381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3381078082862676049}
+  m_Layer: 0
+  m_Name: ActionTextAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3381078082862676049
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614304238699298381}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.16, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1508356147080894683}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1508356146979340432
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,6 +160,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 3381078082862676049}
   - {fileID: 1508356147559373248}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -145,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a46305db0a0d38a4eb5644697562028c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ActionTextAnchor: {fileID: 3381078082862676049}
   mover: {fileID: 1508356147080894681}
   aiBrain: {fileID: 1508356147080894680}
   actionsAvailable:
@@ -153,6 +186,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5544ab4573e79a447af1a70ad8f46404, type: 2}
   - {fileID: 11400000, guid: ad82cc94e53769944b19a6f5a3702baf, type: 2}
   - {fileID: 11400000, guid: f971e42edb72b0448bf8c7ec19415531, type: 2}
+  - {fileID: 11400000, guid: 16442bed8d83ace49a39bd95e6503fd8, type: 2}
   MaxSpeed: 7
   mainRenderer: {fileID: 1508356147559373250}
   usingInteractiveObject: {fileID: 0}
@@ -238,7 +272,7 @@ Transform:
   - {fileID: 1508356148375289209}
   - {fileID: 1508356146979340433}
   m_Father: {fileID: 1508356147080894683}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1508356147559373251
 MeshFilter:

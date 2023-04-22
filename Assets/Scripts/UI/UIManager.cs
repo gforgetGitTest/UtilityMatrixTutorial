@@ -31,6 +31,11 @@ public class UIManager : MonoBehaviour
     public Material unselectedMaterial;
     public Material selectedMaterial;
 
+    [Header("TextPrefab")]
+    [SerializeField] private Transform ActionTextParent;
+    public GameObject ActionTextPrefab;
+
+    private List<TextMeshProUGUI> ActionTextsList = new List<TextMeshProUGUI>();
     private void Awake()
     {
         Instance = this;
@@ -44,10 +49,17 @@ public class UIManager : MonoBehaviour
         }
 
         SelectNPC(GameManager.Instance.NPCs[0]);
+        for (int i=0; i< GameManager.Instance.NPCs.Length; i++) 
+        {
+            GameObject tempOBJ = Instantiate(ActionTextPrefab, ActionTextParent);
+            ActionTextsList.Add(tempOBJ.GetComponent<TextMeshProUGUI>());
+        }
     }
 
     private void Update()
     {
+        if (GameManager.Instance == null) return;
+
         if (Input.GetMouseButtonDown(0)) 
         {
             RaycastHit hit;
@@ -58,6 +70,12 @@ public class UIManager : MonoBehaviour
             {
                 SelectNPC(hit.transform.parent.GetComponent<NPCController>());
             }
+        }
+
+        for (int i = 0; i < GameManager.Instance.NPCs.Length; i++)
+        {
+            ActionTextsList[i].rectTransform.position = mainCamera.WorldToScreenPoint(GameManager.Instance.NPCs[i].ActionTextAnchor.position);
+            ActionTextsList[i].text = GameManager.Instance.NPCs[i].CurrentActionName;
         }
     }
 

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1eaab21026ec12429b24224d76b9b3e, type: 3}
+  m_Name: GoRest
+  m_EditorClassIdentifier: 
+  Name: GoRest
+  considerations:
+  - {fileID: 11400000, guid: 07604110f9e400e438177d57d75d3d6e, type: 2}
+  - {fileID: 11400000, guid: 326d3252f01d611409e0763cd35d6051, type: 2}
