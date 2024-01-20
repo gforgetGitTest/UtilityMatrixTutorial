@@ -41,8 +41,8 @@ namespace TL.Core
 
         private void Awake()
         {
-            stats = new Stats(this);
-            inventory = new Inventory(this);
+            stats = new Stats(this, UnityEngine.Random.Range(50, 100), UnityEngine.Random.Range(0, 20));
+            inventory = new Inventory(this, UnityEngine.Random.Range(0, 10), UnityEngine.Random.Range(0, 5), UnityEngine.Random.Range(0, 200));
         }
 
         // Start is called before the first frame update
